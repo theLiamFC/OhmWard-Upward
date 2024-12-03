@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "pic32_spi_hal.h": "c"
+    }
+}
