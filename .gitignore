@@ -3,6 +3,10 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+*.inx
+*.log.inx
+*.00
+
 #MPLABX ignores
 **/.generated_files/
 **/nbproject/private/
