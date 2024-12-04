@@ -6,6 +6,7 @@
 *.inx
 *.log.inx
 *.00
+*.vscode
 
 #MPLABX ignores
 **/.generated_files/
