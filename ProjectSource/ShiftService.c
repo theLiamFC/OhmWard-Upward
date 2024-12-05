@@ -155,7 +155,7 @@ ES_Event_t RunShiftService(ES_Event_t ThisEvent)
             }
             else if (ThisEvent.EventType == ES_UPDATE_SHIFT){
                 OUTPUT = 1; // turn off output
-                NextState = UpdatingShift_P;
+                NextState = UpdatingShift;
                 ES_Timer_InitTimer(SHIFT_TIMER, ShiftInterval);
             }
         }
@@ -188,7 +188,7 @@ ES_Event_t RunShiftService(ES_Event_t ThisEvent)
                 } else { // reset output latch
                     OUTPUT = 1;
                     LatchHi = true;
-                    NextState = GameOn_P;
+                    NextState = Waiting;
                     ShiftsRemaining = NUM_SHIFT;
                 }
             }
