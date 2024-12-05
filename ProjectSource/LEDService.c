@@ -29,10 +29,6 @@ static uint8_t MyPriority;
 static LED_State_t CurrentState;
 static ES_Event_t DeferralQueue[3 + 1];
 
-static char *ScrollString = NULL;
-static uint8_t ScrollIndex = 0;
-static uint8_t ScrollLen = 0;
-
 /*------------------------------ Module Code ------------------------------*/
 
 /****************************************************************************
@@ -139,51 +135,8 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     {
         case IDLE:
         {
-            if (ThisEvent.EventType == ES_TIMEOUT){
-                if (ThisEvent.EventParam == 6){ // SCROLL_TIMER
-                     // Ensure ScrollString is valid and not NULL
-                    if (ScrollString != NULL) {
-                        // Check if the current character is valid
-                        if (ScrollIndex >= ScrollLen) {
-                            ScrollIndex = 0;
-                        }
-                        // Scroll the current character (Display it)
-                        DB_printf("SCROLL_TIMER: %c\n", ScrollString[ScrollIndex]);
-                        DB_printf("SCROLL LENGTH: %d\n", ScrollLen);
-                        DB_printf("SCROLL I: %d\n", ScrollIndex);
-
-                        // Add character to display buffer
-                        DM_ScrollDisplayBuffer(4, 2);  // Clear the previous buffer
-                        DM_AddChar2DisplayBuffer(2, (unsigned char)ScrollString[ScrollIndex]);  // Display the character
-                        ScrollIndex++;  // Move to the next character
-
-                        // Update the state to UPDATING
-                        myEvent.EventType = ES_ROWUPDATE;
-                        CurrentState = UPDATING;
-                        PostLEDService(myEvent);
-
-                        // Restart the timer for the next character
-                        ES_Timer_InitTimer(SCROLL_TIMER, 1200);  // Adjust scroll interval as need
-                    } else {
-                        DB_printf("Error: ScrollString is NULL\n");
-                    }
-                }
-            }
-            else if(ThisEvent.EventType == ES_SCROLL)
+            if(ThisEvent.EventType == ES_NEW_WORD)
             {
-                ES_Timer_StopTimer(SCROLL_TIMER);
-                DB_printf("ES_SCROLL\n");
-                ScrollString = ThisEvent.EventMessage;
-                ScrollLen = strlen(ThisEvent.EventMessage);
-                ScrollIndex = 0;
-                ES_Timer_InitTimer(SCROLL_TIMER, 1200);
-                DB_printf("ES_SCROLL OVER\n");
-            }
-            else if(ThisEvent.EventType == ES_NEW_WORD)
-            {
-                ES_Timer_StopTimer(SCROLL_TIMER);
-                ScrollIndex = 0;
-                
                 uint8_t WordLength = strlen(ThisEvent.EventMessage);
                 DM_ClearDisplayBuffer(ThisEvent.EventParam);
                 for (uint8_t i = 0; i < WordLength; i++){
@@ -204,7 +157,7 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
         break;
         case UPDATING:
         {
-            if (ThisEvent.EventType == ES_TIMEOUT || ThisEvent.EventType == ES_NEW_WORD || ThisEvent.EventType == ES_SCROLL )
+            if (ThisEvent.EventType == ES_NEW_WORD)
             {
                 // add event to the defferal queue
                 if (ES_DeferEvent(DeferralQueue, ThisEvent)){
